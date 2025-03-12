@@ -22,18 +22,19 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
 
 export default function UploadDialog() {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const form = useForm<UploadSong & { audio: FileList; cover: FileList }>({
+  const form = useForm<UploadSong & { audio: FileList | null; cover: FileList | null }>({
     resolver: zodResolver(uploadSongSchema),
     defaultValues: {
       title: "",
       artist: "",
+      audio: null,
+      cover: null,
     },
   });
 
@@ -70,8 +71,11 @@ export default function UploadDialog() {
     },
   });
 
-  const onSubmit = (data: UploadSong & { audio: FileList; cover: FileList }) => {
-    if (!data.audio?.[0] || !data.cover?.[0]) {
+  const onSubmit = (data: UploadSong & { audio: FileList | null; cover: FileList | null }) => {
+    const audioFile = data.audio?.[0];
+    const coverFile = data.cover?.[0];
+
+    if (!audioFile || !coverFile) {
       toast({
         title: "Error",
         description: "Please select both audio and cover files",
@@ -83,8 +87,8 @@ export default function UploadDialog() {
     const formData = new FormData();
     formData.append("title", data.title);
     formData.append("artist", data.artist);
-    formData.append("audio", data.audio[0]);
-    formData.append("cover", data.cover[0]);
+    formData.append("audio", audioFile);
+    formData.append("cover", coverFile);
 
     mutation.mutate(formData);
   };
@@ -110,7 +114,7 @@ export default function UploadDialog() {
                 <FormItem>
                   <FormLabel>Title</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input placeholder="Song title" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -123,7 +127,7 @@ export default function UploadDialog() {
                 <FormItem>
                   <FormLabel>Artist</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input placeholder="Artist name" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -132,7 +136,7 @@ export default function UploadDialog() {
             <FormField
               control={form.control}
               name="audio"
-              render={({ field: { onChange } }) => (
+              render={({ field: { onChange, value, ...field } }) => (
                 <FormItem>
                   <FormLabel>Audio File</FormLabel>
                   <FormControl>
@@ -140,6 +144,7 @@ export default function UploadDialog() {
                       type="file"
                       accept="audio/*"
                       onChange={(e) => onChange(e.target.files)}
+                      {...field}
                     />
                   </FormControl>
                   <FormMessage />
@@ -149,7 +154,7 @@ export default function UploadDialog() {
             <FormField
               control={form.control}
               name="cover"
-              render={({ field: { onChange } }) => (
+              render={({ field: { onChange, value, ...field } }) => (
                 <FormItem>
                   <FormLabel>Cover Image</FormLabel>
                   <FormControl>
@@ -157,6 +162,7 @@ export default function UploadDialog() {
                       type="file"
                       accept="image/*"
                       onChange={(e) => onChange(e.target.files)}
+                      {...field}
                     />
                   </FormControl>
                   <FormMessage />
