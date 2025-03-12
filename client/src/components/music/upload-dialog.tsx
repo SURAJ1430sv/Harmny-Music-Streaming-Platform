@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { insertSongSchema } from "@shared/schema";
+import { uploadSongSchema, type UploadSong } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,6 +9,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
@@ -28,13 +29,11 @@ export default function UploadDialog() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const form = useForm({
-    resolver: zodResolver(insertSongSchema.omit({ id: true })),
+  const form = useForm<UploadSong & { audio: FileList; cover: FileList }>({
+    resolver: zodResolver(uploadSongSchema),
     defaultValues: {
       title: "",
       artist: "",
-      audioUrl: "",
-      coverUrl: "",
     },
   });
 
@@ -46,6 +45,7 @@ export default function UploadDialog() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/songs"] });
       setOpen(false);
+      form.reset();
       toast({
         title: "Success",
         description: "Song uploaded successfully",
@@ -60,7 +60,7 @@ export default function UploadDialog() {
     },
   });
 
-  const onSubmit = (data: any) => {
+  const onSubmit = (data: UploadSong & { audio: FileList; cover: FileList }) => {
     const formData = new FormData();
     formData.append("title", data.title);
     formData.append("artist", data.artist);
@@ -78,6 +78,9 @@ export default function UploadDialog() {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Upload a new song</DialogTitle>
+          <DialogDescription>
+            Add your song to your library. Choose a song file and a cover image.
+          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

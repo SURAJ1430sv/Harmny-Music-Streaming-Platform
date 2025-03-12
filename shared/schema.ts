@@ -32,11 +32,22 @@ export const playlistSongs = pgTable("playlist_songs", {
   addedAt: timestamp("added_at").notNull().defaultNow(),
 });
 
+// Create base schemas
 export const insertUserSchema = createInsertSchema(users);
 export const insertSongSchema = createInsertSchema(songs);
 export const insertPlaylistSchema = createInsertSchema(playlists);
 export const insertPlaylistSongSchema = createInsertSchema(playlistSongs);
 
+// Create file upload schema for songs
+export const uploadSongSchema = insertSongSchema.omit({ 
+  id: true,
+  userId: true,
+  audioUrl: true,
+  coverUrl: true,
+  duration: true 
+});
+
+// Types
 export type User = typeof users.$inferSelect;
 export type Song = typeof songs.$inferSelect;
 export type Playlist = typeof playlists.$inferSelect;
@@ -46,3 +57,4 @@ export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertSong = z.infer<typeof insertSongSchema>;
 export type InsertPlaylist = z.infer<typeof insertPlaylistSchema>;
 export type InsertPlaylistSong = z.infer<typeof insertPlaylistSongSchema>;
+export type UploadSong = z.infer<typeof uploadSongSchema>;
