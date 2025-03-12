@@ -39,7 +39,17 @@ export default function UploadDialog() {
 
   const mutation = useMutation({
     mutationFn: async (formData: FormData) => {
-      const res = await apiRequest("POST", "/api/songs", formData);
+      const res = await fetch("/api/songs", {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || "Failed to upload song");
+      }
+
       return res.json();
     },
     onSuccess: () => {
@@ -61,6 +71,15 @@ export default function UploadDialog() {
   });
 
   const onSubmit = (data: UploadSong & { audio: FileList; cover: FileList }) => {
+    if (!data.audio?.[0] || !data.cover?.[0]) {
+      toast({
+        title: "Error",
+        description: "Please select both audio and cover files",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const formData = new FormData();
     formData.append("title", data.title);
     formData.append("artist", data.artist);
