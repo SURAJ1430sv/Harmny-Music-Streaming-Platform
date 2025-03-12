@@ -78,11 +78,19 @@ export default function UploadDialog() {
     },
   });
 
-  const onSubmit = (data: UploadSong & { audio: FileList | null; cover: FileList | null }) => {
+  const onSubmit = async (data: UploadSong & { audio: FileList | null; cover: FileList | null }) => {
     const audioFile = data.audio?.[0];
     const coverFile = data.cover?.[0];
 
+    console.log("Form submission data:", {
+      title: data.title,
+      artist: data.artist,
+      audioFile: audioFile?.name,
+      coverFile: coverFile?.name
+    });
+
     if (!audioFile || !coverFile) {
+      console.error("Missing files:", { audio: !!audioFile, cover: !!coverFile });
       toast({
         title: "Error",
         description: "Please select both audio and cover files",
@@ -90,11 +98,6 @@ export default function UploadDialog() {
       });
       return;
     }
-
-    console.log("Preparing form data with files:", {
-      audio: audioFile.name,
-      cover: coverFile.name,
-    });
 
     const formData = new FormData();
     formData.append("title", data.title);
@@ -148,7 +151,7 @@ export default function UploadDialog() {
             <FormField
               control={form.control}
               name="audio"
-              render={({ field: { onChange } }) => (
+              render={({ field: { onChange }, fieldState }) => (
                 <FormItem>
                   <FormLabel>Audio File</FormLabel>
                   <FormControl>
@@ -156,19 +159,22 @@ export default function UploadDialog() {
                       type="file"
                       accept="audio/*"
                       onChange={(e) => {
-                        console.log("Audio file selected:", e.target.files?.[0]?.name);
-                        onChange(e.target.files);
+                        const files = e.target.files;
+                        console.log("Audio file selected:", files?.[0]?.name);
+                        onChange(files);
                       }}
                     />
                   </FormControl>
-                  <FormMessage />
+                  {fieldState.error && (
+                    <FormMessage>{fieldState.error.message}</FormMessage>
+                  )}
                 </FormItem>
               )}
             />
             <FormField
               control={form.control}
               name="cover"
-              render={({ field: { onChange } }) => (
+              render={({ field: { onChange }, fieldState }) => (
                 <FormItem>
                   <FormLabel>Cover Image</FormLabel>
                   <FormControl>
@@ -176,12 +182,15 @@ export default function UploadDialog() {
                       type="file"
                       accept="image/*"
                       onChange={(e) => {
-                        console.log("Cover file selected:", e.target.files?.[0]?.name);
-                        onChange(e.target.files);
+                        const files = e.target.files;
+                        console.log("Cover file selected:", files?.[0]?.name);
+                        onChange(files);
                       }}
                     />
                   </FormControl>
-                  <FormMessage />
+                  {fieldState.error && (
+                    <FormMessage>{fieldState.error.message}</FormMessage>
+                  )}
                 </FormItem>
               )}
             />

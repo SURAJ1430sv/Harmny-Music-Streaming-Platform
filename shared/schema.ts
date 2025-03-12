@@ -39,12 +39,11 @@ export const insertPlaylistSchema = createInsertSchema(playlists);
 export const insertPlaylistSongSchema = createInsertSchema(playlistSongs);
 
 // Create file upload schema for songs
-export const uploadSongSchema = insertSongSchema.omit({ 
-  id: true,
-  userId: true,
-  audioUrl: true,
-  coverUrl: true,
-  duration: true 
+export const uploadSongSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  artist: z.string().min(1, "Artist is required"),
+  audio: z.any(),
+  cover: z.any(),
 });
 
 // Types
