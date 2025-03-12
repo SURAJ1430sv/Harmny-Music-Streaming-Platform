@@ -4,7 +4,11 @@ import SongCard from "@/components/music/song-card";
 import PlaylistCard from "@/components/music/playlist-card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function Home() {
+interface HomeProps {
+  onPlay: (song: Song) => void;
+}
+
+export default function Home({ onPlay }: HomeProps) {
   const { data: songs, isLoading: songsLoading } = useQuery<Song[]>({
     queryKey: ["/api/songs"],
   });
@@ -12,11 +16,6 @@ export default function Home() {
   const { data: playlists, isLoading: playlistsLoading } = useQuery<Playlist[]>({
     queryKey: ["/api/playlists"],
   });
-
-  const handlePlaySong = (song: Song) => {
-    // TODO: Implement song playback
-    console.log("Playing song:", song);
-  };
 
   const handlePlayPlaylist = (playlist: Playlist) => {
     // TODO: Implement playlist playback
@@ -37,7 +36,7 @@ export default function Home() {
                 </div>
               ))
             : songs?.slice(0, 5).map((song) => (
-                <SongCard key={song.id} song={song} onPlay={handlePlaySong} />
+                <SongCard key={song.id} song={song} onPlay={onPlay} />
               ))}
         </div>
       </section>
@@ -74,7 +73,7 @@ export default function Home() {
                 </div>
               ))
             : songs?.slice(-5).map((song) => (
-                <SongCard key={song.id} song={song} onPlay={handlePlaySong} />
+                <SongCard key={song.id} song={song} onPlay={onPlay} />
               ))}
         </div>
       </section>
