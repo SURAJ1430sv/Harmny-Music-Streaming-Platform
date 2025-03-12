@@ -40,6 +40,13 @@ export default function UploadDialog() {
 
   const mutation = useMutation({
     mutationFn: async (formData: FormData) => {
+      console.log("Submitting form data:", {
+        title: formData.get('title'),
+        artist: formData.get('artist'),
+        audio: formData.get('audio'),
+        cover: formData.get('cover'),
+      });
+
       const res = await fetch("/api/songs", {
         method: "POST",
         body: formData,
@@ -83,6 +90,11 @@ export default function UploadDialog() {
       });
       return;
     }
+
+    console.log("Preparing form data with files:", {
+      audio: audioFile.name,
+      cover: coverFile.name,
+    });
 
     const formData = new FormData();
     formData.append("title", data.title);
@@ -136,14 +148,17 @@ export default function UploadDialog() {
             <FormField
               control={form.control}
               name="audio"
-              render={({ field: { onChange, value, ...field } }) => (
+              render={({ field: { onChange, ...field } }) => (
                 <FormItem>
                   <FormLabel>Audio File</FormLabel>
                   <FormControl>
                     <Input
                       type="file"
                       accept="audio/*"
-                      onChange={(e) => onChange(e.target.files)}
+                      onChange={(e) => {
+                        console.log("Audio file selected:", e.target.files?.[0]?.name);
+                        onChange(e.target.files);
+                      }}
                       {...field}
                     />
                   </FormControl>
@@ -154,14 +169,17 @@ export default function UploadDialog() {
             <FormField
               control={form.control}
               name="cover"
-              render={({ field: { onChange, value, ...field } }) => (
+              render={({ field: { onChange, ...field } }) => (
                 <FormItem>
                   <FormLabel>Cover Image</FormLabel>
                   <FormControl>
                     <Input
                       type="file"
                       accept="image/*"
-                      onChange={(e) => onChange(e.target.files)}
+                      onChange={(e) => {
+                        console.log("Cover file selected:", e.target.files?.[0]?.name);
+                        onChange(e.target.files);
+                      }}
                       {...field}
                     />
                   </FormControl>

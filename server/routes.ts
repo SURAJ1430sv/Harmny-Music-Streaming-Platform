@@ -5,6 +5,7 @@ import multer from "multer";
 import fs from "fs";
 import path from "path";
 import { insertSongSchema, insertPlaylistSchema, insertPlaylistSongSchema } from "@shared/schema";
+import express from 'express';
 
 // Ensure uploads directory exists
 const uploadsDir = path.join(process.cwd(), "uploads");
@@ -57,23 +58,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     { name: 'cover', maxCount: 1 }
   ]), async (req, res) => {
     try {
+      console.log('Received files:', req.files);
+      console.log('Received body:', req.body);
+
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
       if (!files.audio?.[0] || !files.cover?.[0]) {
+        console.error('Missing required files:', { 
+          audio: !!files.audio, 
+          cover: !!files.cover 
+        });
         res.status(400).json({ message: "Both audio and cover files are required" });
         return;
       }
 
       const result = insertSongSchema.safeParse({
         ...req.body,
-        audioUrl: files.audio[0].path,
-        coverUrl: files.cover[0].path,
+        audioUrl: '/uploads/' + path.basename(files.audio[0].path),
+        coverUrl: '/uploads/' + path.basename(files.cover[0].path),
         userId: 1, // TODO: Get from session
         duration: 180, // TODO: Calculate actual duration
       });
 
       if (!result.success) {
-        res.status(400).json({ message: "Invalid song data" });
+        console.error('Validation error:', result.error);
+        res.status(400).json({ message: "Invalid song data", errors: result.error.errors });
         return;
       }
 
@@ -84,6 +93,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: error instanceof Error ? error.message : "Upload failed" });
     }
   });
+
+  // Serve uploaded files
+  app.use('/uploads', express.static(uploadsDir));
 
   // Playlists
   app.get("/api/playlists", async (_req, res) => {
