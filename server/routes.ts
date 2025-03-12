@@ -44,6 +44,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Songs
   app.get("/api/songs", async (_req, res) => {
     const songs = await storage.getSongs();
+    console.log('Fetched songs:', songs); // Add logging
     res.json(songs);
   });
 
@@ -90,6 +91,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const song = await storage.createSong(result.data);
+      console.log('Created song:', song); // Add logging
       res.json(song);
     } catch (error) {
       console.error('Upload error:', error);

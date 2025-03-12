@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import type { Song } from "@shared/schema";
 
 interface PlayerProps {
@@ -20,21 +21,37 @@ export default function Player({ currentSong }: PlayerProps) {
   const [volume, setVolume] = useState(100);
   const [progress, setProgress] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (currentSong && audioRef.current) {
+      console.log('Setting audio source:', currentSong.audioUrl);
       audioRef.current.src = currentSong.audioUrl;
-      audioRef.current.play().catch(console.error);
+      audioRef.current.play().catch((error) => {
+        console.error('Audio playback error:', error);
+        toast({
+          title: "Playback Error",
+          description: "Failed to play the audio file",
+          variant: "destructive",
+        });
+      });
       setIsPlaying(true);
     }
-  }, [currentSong]);
+  }, [currentSong, toast]);
 
   const togglePlay = () => {
     if (audioRef.current) {
       if (isPlaying) {
         audioRef.current.pause();
       } else {
-        audioRef.current.play().catch(console.error);
+        audioRef.current.play().catch((error) => {
+          console.error('Audio playback error:', error);
+          toast({
+            title: "Playback Error",
+            description: "Failed to play the audio file",
+            variant: "destructive",
+          });
+        });
       }
       setIsPlaying(!isPlaying);
     }
@@ -162,6 +179,14 @@ export default function Player({ currentSong }: PlayerProps) {
           setProgress((audio.currentTime / audio.duration) * 100);
         }}
         onEnded={() => setIsPlaying(false)}
+        onError={(e) => {
+          console.error('Audio error:', e);
+          toast({
+            title: "Playback Error",
+            description: "Failed to play the audio file",
+            variant: "destructive",
+          });
+        }}
       />
     </div>
   );
