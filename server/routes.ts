@@ -38,6 +38,9 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Serve uploaded files
+  app.use('/uploads', express.static(uploadsDir));
+
   // Songs
   app.get("/api/songs", async (_req, res) => {
     const songs = await storage.getSongs();
@@ -93,9 +96,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: error instanceof Error ? error.message : "Upload failed" });
     }
   });
-
-  // Serve uploaded files
-  app.use('/uploads', express.static(uploadsDir));
 
   // Playlists
   app.get("/api/playlists", async (_req, res) => {
