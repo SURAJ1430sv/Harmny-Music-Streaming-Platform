@@ -148,7 +148,7 @@ export default function UploadDialog() {
             <FormField
               control={form.control}
               name="audio"
-              render={({ field: { onChange, ...field } }) => (
+              render={({ field: { onChange } }) => (
                 <FormItem>
                   <FormLabel>Audio File</FormLabel>
                   <FormControl>
@@ -159,7 +159,6 @@ export default function UploadDialog() {
                         console.log("Audio file selected:", e.target.files?.[0]?.name);
                         onChange(e.target.files);
                       }}
-                      {...field}
                     />
                   </FormControl>
                   <FormMessage />
@@ -169,7 +168,7 @@ export default function UploadDialog() {
             <FormField
               control={form.control}
               name="cover"
-              render={({ field: { onChange, ...field } }) => (
+              render={({ field: { onChange } }) => (
                 <FormItem>
                   <FormLabel>Cover Image</FormLabel>
                   <FormControl>
@@ -180,7 +179,6 @@ export default function UploadDialog() {
                         console.log("Cover file selected:", e.target.files?.[0]?.name);
                         onChange(e.target.files);
                       }}
-                      {...field}
                     />
                   </FormControl>
                   <FormMessage />
