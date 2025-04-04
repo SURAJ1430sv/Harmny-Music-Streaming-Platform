@@ -9,6 +9,11 @@ interface SongCardProps {
 }
 
 export default function SongCard({ song, onPlay }: SongCardProps) {
+  const handlePlayClick = () => {
+    console.log('Playing song:', song);
+    onPlay(song);
+  };
+
   return (
     <Card className="group relative overflow-hidden transition-colors hover:bg-accent">
       <CardContent className="p-4">
@@ -16,12 +21,12 @@ export default function SongCard({ song, onPlay }: SongCardProps) {
           <img
             src={song.coverUrl}
             alt={song.title}
-            className="object-cover transition-transform group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform group-hover:scale-105"
           />
           <Button
             size="icon"
             className="absolute bottom-2 right-2 translate-y-4 opacity-0 transition-all group-hover:translate-y-0 group-hover:opacity-100"
-            onClick={() => onPlay(song)}
+            onClick={handlePlayClick}
           >
             <Play className="h-5 w-5" />
           </Button>

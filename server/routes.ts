@@ -51,8 +51,31 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Serve uploaded files and public assets
-  app.use('/uploads', express.static(uploadsDir));
+  // Serve uploaded files with proper MIME types
+  app.use('/uploads', (req, res, next) => {
+    const filePath = path.join(uploadsDir, path.basename(req.path));
+    
+    // Check if file exists
+    if (!fs.existsSync(filePath)) {
+      return next();
+    }
+    
+    const ext = path.extname(filePath).toLowerCase();
+    
+    // Set specific content types for audio files to ensure proper playback
+    if (ext === '.mp3') {
+      res.setHeader('Content-Type', 'audio/mpeg');
+    } else if (ext === '.wav') {
+      res.setHeader('Content-Type', 'audio/wav');
+    } else if (ext === '.ogg') {
+      res.setHeader('Content-Type', 'audio/ogg');
+    } else if (ext === '.m4a') {
+      res.setHeader('Content-Type', 'audio/mp4');
+    }
+    
+    // Serve the file
+    res.sendFile(filePath);
+  });
   
   // Serve static assets from client/public directory
   const publicDir = path.join(process.cwd(), "client", "public");
@@ -95,10 +118,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return;
       }
 
+      // Make sure the URLs are correct absolute paths from server root
+      const audioUrl = '/uploads/' + path.basename(files.audio[0].path);
+      const coverUrl = '/uploads/' + path.basename(files.cover[0].path);
+      
+      console.log('Audio URL:', audioUrl);
+      console.log('Cover URL:', coverUrl);
+      
       const result = insertSongSchema.safeParse({
         ...req.body,
-        audioUrl: '/uploads/' + path.basename(files.audio[0].path),
-        coverUrl: '/uploads/' + path.basename(files.cover[0].path),
+        audioUrl,
+        coverUrl,
         userId: 1, // TODO: Get from session
         duration: 180, // TODO: Calculate actual duration
       });

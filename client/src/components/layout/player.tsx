@@ -27,23 +27,22 @@ export default function Player({ currentSong }: PlayerProps) {
   useEffect(() => {
     if (currentSong && audioRef.current) {
       console.log('Setting audio source:', currentSong.audioUrl);
+      
+      // Set the source directly
       audioRef.current.src = currentSong.audioUrl;
       
-      // Reset progress
-      setProgress(0);
+      // Force a load of the audio
+      audioRef.current.load();
       
-      // Auto-play new song if isPlaying is true
-      if (isPlaying) {
-        audioRef.current.play().catch((error) => {
-          console.error('Audio playback error:', error);
-          toast({
-            title: "Playback Error",
-            description: "Failed to play the audio file",
-            variant: "destructive",
-          });
-          setIsPlaying(false);
-        });
-      }
+      // Reset progress and time
+      setProgress(0);
+      setCurrentTime(0);
+      
+      console.log('Audio element after setting source:', {
+        src: audioRef.current.src,
+        readyState: audioRef.current.readyState,
+        duration: audioRef.current.duration
+      });
     }
   }, [currentSong]);
   
@@ -51,20 +50,27 @@ export default function Player({ currentSong }: PlayerProps) {
   useEffect(() => {
     if (!audioRef.current || !currentSong) return;
     
+    console.log('Play state changed:', isPlaying);
+    
     if (isPlaying) {
-      audioRef.current.play().catch((error) => {
-        console.error('Audio playback error:', error);
-        toast({
-          title: "Playback Error",
-          description: "Failed to play the audio file",
-          variant: "destructive",
+      // Use a timeout to ensure the audio is loaded
+      const playPromise = audioRef.current.play();
+      
+      if (playPromise !== undefined) {
+        playPromise.catch((error) => {
+          console.error('Audio playback error:', error);
+          toast({
+            title: "Playback Error",
+            description: "Failed to play the audio file. Please try again.",
+            variant: "destructive",
+          });
+          setIsPlaying(false);
         });
-        setIsPlaying(false);
-      });
+      }
     } else {
       audioRef.current.pause();
     }
-  }, [isPlaying, currentSong]);
+  }, [isPlaying, currentSong, toast]);
 
   const togglePlay = () => {
     if (!audioRef.current || !currentSong) return;
@@ -225,16 +231,36 @@ export default function Player({ currentSong }: PlayerProps) {
 
       <audio
         ref={audioRef}
+        preload="auto"
+        crossOrigin="anonymous"
         onTimeUpdate={(e) => {
           const audio = e.currentTarget;
-          setProgress((audio.currentTime / audio.duration) * 100);
+          if (!isNaN(audio.duration)) {
+            setProgress((audio.currentTime / audio.duration) * 100);
+          }
         }}
-        onEnded={() => setIsPlaying(false)}
+        onLoadedData={() => {
+          console.log('Audio loaded data successfully');
+          if (audioRef.current) {
+            console.log('Audio ready state:', audioRef.current.readyState);
+            console.log('Audio duration:', audioRef.current.duration);
+          }
+        }}
+        onCanPlay={() => {
+          console.log('Audio can play now');
+          if (isPlaying && audioRef.current) {
+            audioRef.current.play().catch(err => console.error('Error playing on canplay:', err));
+          }
+        }}
+        onEnded={() => {
+          console.log('Audio playback ended');
+          setIsPlaying(false);
+        }}
         onError={(e) => {
           console.error('Audio error:', e);
           toast({
             title: "Playback Error",
-            description: "Failed to play the audio file",
+            description: "Failed to play the audio file. Check the file format.",
             variant: "destructive",
           });
         }}
