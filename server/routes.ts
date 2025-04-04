@@ -6,6 +6,7 @@ import fs from "fs";
 import path from "path";
 import { insertSongSchema, insertPlaylistSchema, insertPlaylistSongSchema } from "@shared/schema";
 import express from 'express';
+import { setupAuth } from "./auth";
 
 // Multer types for file upload
 interface MulterFile {
@@ -51,6 +52,9 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Set up authentication
+  setupAuth(app);
+  
   // Serve uploaded files with proper MIME types
   app.use('/uploads', (req, res, next) => {
     const filePath = path.join(uploadsDir, path.basename(req.path));
@@ -129,7 +133,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...req.body,
         audioUrl,
         coverUrl,
-        userId: 1, // TODO: Get from session
+        userId: req.user?.id || 1, // Get user from session or use default
         duration: 180, // TODO: Calculate actual duration
       });
 
@@ -166,7 +170,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/playlists", async (req, res) => {
     const result = insertPlaylistSchema.safeParse({
       ...req.body,
-      userId: 1, // TODO: Get from session
+      userId: req.user?.id || 1, // Get user from session or use default
     });
 
     if (!result.success) {

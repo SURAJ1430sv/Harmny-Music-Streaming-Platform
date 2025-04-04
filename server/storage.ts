@@ -8,6 +8,10 @@ import {
   type PlaylistSong,
   type InsertPlaylistSong,
 } from "@shared/schema";
+import session from "express-session";
+import createMemoryStore from "memorystore";
+
+const MemoryStore = createMemoryStore(session);
 
 export interface IStorage {
   // Users
@@ -33,6 +37,9 @@ export interface IStorage {
   getPlaylistSongs(playlistId: number): Promise<Song[]>;
   addSongToPlaylist(playlistSong: InsertPlaylistSong): Promise<PlaylistSong>;
   removeSongFromPlaylist(playlistId: number, songId: number): Promise<void>;
+  
+  // Session store
+  sessionStore: session.Store;
 }
 
 export class MemStorage implements IStorage {
@@ -41,6 +48,7 @@ export class MemStorage implements IStorage {
   private playlists: Map<number, Playlist>;
   private playlistSongs: Map<number, PlaylistSong>;
   private currentId: { [key: string]: number };
+  sessionStore: session.Store;
 
   constructor() {
     this.users = new Map();
@@ -53,6 +61,9 @@ export class MemStorage implements IStorage {
       playlists: 1,
       playlistSongs: 1,
     };
+    this.sessionStore = new MemoryStore({
+      checkPeriod: 86400000 // prune expired entries every 24h
+    });
   }
 
   // Users
@@ -135,7 +146,11 @@ export class MemStorage implements IStorage {
 
   async addSongToPlaylist(playlistSong: InsertPlaylistSong): Promise<PlaylistSong> {
     const id = this.currentId.playlistSongs++;
-    const newPlaylistSong = { ...playlistSong, id };
+    const newPlaylistSong = { 
+      ...playlistSong, 
+      id, 
+      addedAt: playlistSong.addedAt || new Date() 
+    };
     this.playlistSongs.set(id, newPlaylistSong);
     return newPlaylistSong;
   }
