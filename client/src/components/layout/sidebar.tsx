@@ -14,6 +14,12 @@ export default function Sidebar() {
 
   return (
     <div className="flex h-full w-[300px] flex-col gap-y-2 bg-card p-2">
+      <div className="mb-4 flex items-center px-4 py-2">
+        <h1 className="text-2xl font-bold bg-gradient-to-r from-green-400 to-purple-600 bg-clip-text text-transparent">
+          Harmny
+        </h1>
+      </div>
+      
       <div className="space-y-2">
         <Link href="/">
           <Button

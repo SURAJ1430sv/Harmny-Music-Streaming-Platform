@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import multer from "multer";
@@ -6,6 +6,19 @@ import fs from "fs";
 import path from "path";
 import { insertSongSchema, insertPlaylistSchema, insertPlaylistSongSchema } from "@shared/schema";
 import express from 'express';
+
+// Multer types for file upload
+interface MulterFile {
+  fieldname: string;
+  originalname: string;
+  encoding: string;
+  mimetype: string;
+  size: number;
+  destination: string;
+  filename: string;
+  path: string;
+  buffer: Buffer;
+}
 
 // Ensure uploads directory exists
 const uploadsDir = path.join(process.cwd(), "uploads");
@@ -16,15 +29,15 @@ if (!fs.existsSync(uploadsDir)) {
 // Configure multer for different file types
 const upload = multer({
   storage: multer.diskStorage({
-    destination: function (req, file, cb) {
+    destination: function (_req: Request, _file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) {
       cb(null, uploadsDir);
     },
-    filename: function (req, file, cb) {
+    filename: function (_req: Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void) {
       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
       cb(null, uniqueSuffix + path.extname(file.originalname));
     }
   }),
-  fileFilter: function (req, file, cb) {
+  fileFilter: function (_req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) {
     if (file.fieldname === 'audio' && !file.mimetype.startsWith('audio/')) {
       cb(new Error('Only audio files are allowed'));
       return;
@@ -38,8 +51,14 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Serve uploaded files
+  // Serve uploaded files and public assets
   app.use('/uploads', express.static(uploadsDir));
+  
+  // Serve static assets from client/public directory
+  const publicDir = path.join(process.cwd(), "client", "public");
+  if (fs.existsSync(publicDir)) {
+    app.use(express.static(publicDir));
+  }
 
   // Songs
   app.get("/api/songs", async (_req, res) => {

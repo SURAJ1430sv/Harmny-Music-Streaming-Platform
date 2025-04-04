@@ -23,10 +23,16 @@ export default function Player({ currentSong }: PlayerProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const { toast } = useToast();
 
+  // Update audio source when song changes
   useEffect(() => {
     if (currentSong && audioRef.current) {
       console.log('Setting audio source:', currentSong.audioUrl);
       audioRef.current.src = currentSong.audioUrl;
+      
+      // Reset progress
+      setProgress(0);
+      
+      // Auto-play new song if isPlaying is true
       if (isPlaying) {
         audioRef.current.play().catch((error) => {
           console.error('Audio playback error:', error);
@@ -35,29 +41,34 @@ export default function Player({ currentSong }: PlayerProps) {
             description: "Failed to play the audio file",
             variant: "destructive",
           });
-          setIsPlaying(false); // Set isPlaying to false on error
+          setIsPlaying(false);
         });
       }
     }
-  }, [currentSong, isPlaying, toast]);
+  }, [currentSong]);
+  
+  // Handle isPlaying state changes
+  useEffect(() => {
+    if (!audioRef.current || !currentSong) return;
+    
+    if (isPlaying) {
+      audioRef.current.play().catch((error) => {
+        console.error('Audio playback error:', error);
+        toast({
+          title: "Playback Error",
+          description: "Failed to play the audio file",
+          variant: "destructive",
+        });
+        setIsPlaying(false);
+      });
+    } else {
+      audioRef.current.pause();
+    }
+  }, [isPlaying, currentSong]);
 
   const togglePlay = () => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
-      } else {
-        audioRef.current.play().catch((error) => {
-          console.error('Audio playback error:', error);
-          toast({
-            title: "Playback Error",
-            description: "Failed to play the audio file",
-            variant: "destructive",
-          });
-          setIsPlaying(false); // Set isPlaying to false on error
-        });
-      }
-      setIsPlaying(!isPlaying);
-    }
+    if (!audioRef.current || !currentSong) return;
+    setIsPlaying(!isPlaying);
   };
 
   const toggleMute = () => {
@@ -88,6 +99,35 @@ export default function Player({ currentSong }: PlayerProps) {
       audioRef.current.currentTime = time;
     }
   };
+  
+  // Format time in MM:SS format
+  const formatTime = (seconds: number) => {
+    if (isNaN(seconds)) return "0:00";
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+  
+  // Current time and total duration
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  
+  // Update time on timeupdate
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    
+    const updateTime = () => setCurrentTime(audio.currentTime);
+    const updateDuration = () => setDuration(audio.duration);
+    
+    audio.addEventListener('timeupdate', updateTime);
+    audio.addEventListener('loadedmetadata', updateDuration);
+    
+    return () => {
+      audio.removeEventListener('timeupdate', updateTime);
+      audio.removeEventListener('loadedmetadata', updateDuration);
+    };
+  }, []);
 
   return (
     <div className="fixed bottom-0 left-0 right-0 border-t bg-card p-4">
@@ -140,14 +180,22 @@ export default function Player({ currentSong }: PlayerProps) {
               <SkipForward className="h-5 w-5" />
             </Button>
           </div>
-          <Slider
-            value={[progress]}
-            max={100}
-            step={1}
-            className="w-full"
-            onValueChange={handleProgressChange}
-            disabled={!currentSong}
-          />
+          <div className="flex w-full items-center gap-x-2">
+            <div className="text-xs text-muted-foreground w-10 text-right">
+              {formatTime(currentTime)}
+            </div>
+            <Slider
+              value={[progress]}
+              max={100}
+              step={1}
+              className="flex-1"
+              onValueChange={handleProgressChange}
+              disabled={!currentSong}
+            />
+            <div className="text-xs text-muted-foreground w-10">
+              {formatTime(duration)}
+            </div>
+          </div>
         </div>
 
         <div className="flex w-1/3 items-center justify-end gap-x-2">
