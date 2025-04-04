@@ -174,6 +174,7 @@ export default function Player({ currentSong }: PlayerProps) {
 
       <audio
         ref={audioRef}
+        src={currentSong?.audioUrl || ''}
         onTimeUpdate={(e) => {
           const audio = e.currentTarget;
           setProgress((audio.currentTime / audio.duration) * 100);
@@ -191,3 +192,42 @@ export default function Player({ currentSong }: PlayerProps) {
     </div>
   );
 }
+// Add this useEffect below your existing state declarations
+useEffect(() => {
+  if (!audioRef.current) return;
+  
+  if (isPlaying) {
+    const playPromise = audioRef.current.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(error => {
+        console.error('Playback error:', error);
+        setIsPlaying(false);
+        toast({
+          title: "Playback Error",
+          description: "Failed to play the audio file",
+          variant: "destructive",
+        });
+      });
+    }
+  } else {
+    audioRef.current.pause();
+  }
+}, [isPlaying, currentSong, toast]);
+
+// Add this useEffect to update audio source when song changes
+useEffect(() => {
+  if (currentSong && audioRef.current) {
+    audioRef.current.src = currentSong.audioUrl;
+    if (isPlaying) {
+      audioRef.current.play().catch(error => {
+        console.error('Error playing new song:', error);
+        setIsPlaying(false);
+        toast({
+          title: "Playback Error",
+          description: "Failed to play the audio file",
+          variant: "destructive",
+        });
+      });
+    }
+  }
+}, [currentSong, isPlaying, toast]);

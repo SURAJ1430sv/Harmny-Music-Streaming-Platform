@@ -151,13 +151,14 @@ export default function UploadDialog() {
             <FormField
               control={form.control}
               name="audio"
-              render={({ field: { onChange }, fieldState }) => (
+              render={({ field: { onChange, value, ...rest }, fieldState }) => (
                 <FormItem>
                   <FormLabel>Audio File</FormLabel>
                   <FormControl>
                     <Input
                       type="file"
                       accept="audio/*"
+                      {...rest}
                       onChange={(e) => {
                         const files = e.target.files;
                         console.log("Audio file selected:", files?.[0]?.name);
@@ -174,13 +175,14 @@ export default function UploadDialog() {
             <FormField
               control={form.control}
               name="cover"
-              render={({ field: { onChange }, fieldState }) => (
+              render={({ field: { onChange, value, ...rest }, fieldState }) => (
                 <FormItem>
                   <FormLabel>Cover Image</FormLabel>
                   <FormControl>
                     <Input
                       type="file"
                       accept="image/*"
+                      {...rest}
                       onChange={(e) => {
                         const files = e.target.files;
                         console.log("Cover file selected:", files?.[0]?.name);
