@@ -2,13 +2,28 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import path from "path";
+import dotenv from "dotenv";
+import fs from "fs";
 
+dotenv.config();
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // Serve static files from uploads directory
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+app.use('/uploads', (req, res, next) => {
+  // Add proper MIME type for MP3 files
+  if (req.path.endsWith('.mp3')) {
+    console.log('Serving audio file:', {
+      path: req.path,
+      fullPath: path.join(process.cwd(), 'uploads', req.path),
+      exists: fs.existsSync(path.join(process.cwd(), 'uploads', req.path))
+    });
+    res.set('Content-Type', 'audio/mpeg');
+    res.set('Accept-Ranges', 'bytes');
+  }
+  next();
+}, express.static(path.join(process.cwd(), 'uploads')));
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -57,12 +72,9 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  const port = 5000;
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    log(`serving on port ${port}`);
-  });
+  const PORT = process.env.PORT ? Number(process.env.PORT) : 5000;
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`✅ Server is running at http://localhost:${PORT}`);
+}); 
 })();
