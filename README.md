@@ -12,12 +12,17 @@ A modern **Spotify-style music streaming website** where users can **upload, pla
 
 The goal of this project is to provide a **self-hosted, user-friendly alternative** to mainstream streaming apps like **Spotify**, while giving creators more control over their content.
 
-## ✨ Key Features
+## 📸 Screenshots and ✨ Key Features
 
 * **User Authentication:** Secure login and registration system.
+* <img width="1898" height="880" alt="image" src="https://github.com/user-attachments/assets/14b2b47a-3917-409c-b87f-9ed614c3a91c" />
 * **Upload & Stream Music:** Users can upload songs and listen instantly.
+* <img width="1884" height="881" alt="image" src="https://github.com/user-attachments/assets/b1c0d5b7-dc93-4af7-9c23-5c6b493a4954" />
 * **Dynamic Playlist Management:** Create and manage playlists easily.
+* <img width="1902" height="874" alt="image" src="https://github.com/user-attachments/assets/611b525a-4e4f-4cde-a914-556f918d6bb6" />
 * **Search & Filter:** Quickly find songs, artists, or albums.
+* <img width="1911" height="876" alt="image" src="https://github.com/user-attachments/assets/c44bd089-c125-4c8a-96b2-e00df40cca40" />
+
 * **Responsive UI:** Fully optimized for desktop and mobile.
 * **Modern Design:** Clean and minimal interface with smooth animations.
 
@@ -30,13 +35,6 @@ The goal of this project is to provide a **self-hosted, user-friendly alternativ
 * **Database:** MongoDB (Mongoose)
 * **Authentication:** JSON Web Tokens (JWT)
 * **Deployment:** Cloud Run / Vercel / Render
-
-## 📸 Screenshots
-<img width="1884" height="881" alt="image" src="https://github.com/user-attachments/assets/b1c0d5b7-dc93-4af7-9c23-5c6b493a4954" />
-<img width="1911" height="876" alt="image" src="https://github.com/user-attachments/assets/c44bd089-c125-4c8a-96b2-e00df40cca40" />
-<img width="1902" height="874" alt="image" src="https://github.com/user-attachments/assets/611b525a-4e4f-4cde-a914-556f918d6bb6" />
-<img width="1898" height="880" alt="image" src="https://github.com/user-attachments/assets/14b2b47a-3917-409c-b87f-9ed614c3a91c" />
-
 
 ## 🚀 Getting Started
 
