@@ -1,48 +1,109 @@
-# Harmny-Music-Streaming-Platform
-Spotify Clone type music streaming website where user can upload their song and listen whenever they want.
+## 🎵 Harmony Music Streaming Platform
 
-# Simplest way to run it:
-Step 1 : Download it into your folder 
-Step 2 : Open with code editer
-Step 3 : Open terminal of editer 
-Step 4 : Run this Command "npm install"
-Step 5 : After that run this command "npm run dev"
+A modern **Spotify-style music streaming website** where users can **upload, play, and manage their songs** — anytime, anywhere. Built with simplicity, performance, and clean design in mind.
 
-modules = ["nodejs-20", "bash", "web"]
-run = "npm run dev"
-hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
+## 📜 Description
 
-[nix]
-channel = "stable-24_05"
+**Harmony** is a full-stack music streaming platform that allows users to:
+🎧 Upload their own songs.
+🎶 Create personalized playlists.
+💿 Stream music with smooth, fast playback.
+📱 Access their favorite tracks from any device.
 
-[deployment]
-deploymentTarget = "cloudrun"
-run = ["sh", "-c", "npm run dev"]
+The goal of this project is to provide a **self-hosted, user-friendly alternative** to mainstream streaming apps like **Spotify**, while giving creators more control over their content.
 
-[[ports]]
-localPort = 5000
-externalPort = 80
+## ✨ Key Features
 
-[workflows]
-runButton = "Start application"
+* **User Authentication:** Secure login and registration system.
+* **Upload & Stream Music:** Users can upload songs and listen instantly.
+* **Dynamic Playlist Management:** Create and manage playlists easily.
+* **Search & Filter:** Quickly find songs, artists, or albums.
+* **Responsive UI:** Fully optimized for desktop and mobile.
+* **Modern Design:** Clean and minimal interface with smooth animations.
 
-[[workflows.workflow]]
-name = "Project"
-mode = "parallel"
-author = "Suraj"
+---
 
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Start application"
+## 🛠️ Tech Stack
 
-[[workflows.workflow]]
-name = "Start application"
-author = "Suraj"
+* **Frontend:** HTML5, CSS3, JavaScript (React.js or similar)
+* **Backend:** Node.js, Express.js
+* **Database:** MongoDB (Mongoose)
+* **Authentication:** JSON Web Tokens (JWT)
+* **Deployment:** Cloud Run / Vercel / Render
 
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
+## 📸 Screenshots
+<img width="1884" height="881" alt="image" src="https://github.com/user-attachments/assets/b1c0d5b7-dc93-4af7-9c23-5c6b493a4954" />
+<img width="1911" height="876" alt="image" src="https://github.com/user-attachments/assets/c44bd089-c125-4c8a-96b2-e00df40cca40" />
+<img width="1902" height="874" alt="image" src="https://github.com/user-attachments/assets/611b525a-4e4f-4cde-a914-556f918d6bb6" />
+<img width="1898" height="880" alt="image" src="https://github.com/user-attachments/assets/14b2b47a-3917-409c-b87f-9ed614c3a91c" />
 
-[[workflows.workflow.tasks]]
+
+## 🚀 Getting Started
+
+Follow these steps to set up and run the project locally:
+
+### 🧩 Prerequisites
+
+Make sure you have installed:
+
+* Node.js (v20 or higher)
+* npm (Node Package Manager)
+
+---
+
+### ⚙️ Installation & Setup
+
+1. **Download the repository**
+
+   ```bash
+   git clone https://github.com/SURAJ1430sv/Harmony-Music-Streaming-Platform.git
+   ```
+
+2. **Open the folder with your code editor (e.g., VS Code)**
+
+3. **Open terminal inside your editor**
+
+4. **Install dependencies**
+
+   ```bash
+   npm install
+   ```
+
+5. **Run the development server**
+
+   ```bash
+   npm run dev
+   ```
+
+Your app will be running locally — usually at:
+👉 **[http://localhost:5000](http://localhost:5000)**
+
+## 📂 Folder Structure
+
+Harmony-Music-Streaming-Platform/
+│
+├── backend/               # Server-side logic
+│   ├── controllers/       # Handle API requests
+│   ├── models/            # MongoDB schemas
+│   ├── routes/            # Express routes
+│   └── server.js          # Entry point for backend
+│
+├── frontend/              # Client-side interface
+│   ├── public/            # Static assets
+│   ├── src/               # App source files
+│   │   ├── components/    # UI components
+│   │   ├── pages/         # Individual pages (Home, Player, Upload)
+│   │   └── App.js         # Main application file
+│   └── package.json       # Frontend dependencies
+│
+├── .env                   # Environment variables
+├── .gitignore             # Git ignore file
+├── README.md              # Project documentation
+└── package.json           # Main dependencies
+
+## 📄 License
+
+This project is licensed under the **MIT License**. See the `LICENSE` file for more information.
 task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
